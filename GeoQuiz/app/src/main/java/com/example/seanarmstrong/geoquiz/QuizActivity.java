@@ -17,8 +17,7 @@ public class QuizActivity extends AppCompatActivity {
 
     private Button mTrueButton;
     private Button mFalseButton;
-    private ImageButton mNextButton;
-    private ImageButton mPreviousButton;
+    private Button mNextButton;
     private TextView mQuestionTextView;
 
     private Question[] mQuestionBank = new Question[] {
@@ -31,6 +30,7 @@ public class QuizActivity extends AppCompatActivity {
     };
 
     private int mCurrentIndex = 0;
+    private int correctAnswers = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +56,7 @@ public class QuizActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 checkAnswer(true);
+                disableAnswerButtons();
             }
         });
 
@@ -64,25 +65,18 @@ public class QuizActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 checkAnswer(false);
+                disableAnswerButtons();
             }
         });
 
-        mNextButton = (ImageButton) findViewById(R.id.next_button);
+        mNextButton = (Button) findViewById(R.id.next_button);
         mNextButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
                 nextQuestion();
+                enableAnswerButton();
             }
         });
-
-        mPreviousButton = (ImageButton) findViewById(R.id.previous_button);
-        mPreviousButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                previousQuestion();
-            }
-        });
-
 
         updateQuestion();
     }
@@ -123,13 +117,18 @@ public class QuizActivity extends AppCompatActivity {
         Log.d(TAG, "onDestroy() callled");
     }
 
-    private void nextQuestion() {
-        mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.length;
-        updateQuestion();
+    public void disableAnswerButtons() {
+        mTrueButton.setEnabled(false);
+        mFalseButton.setEnabled(false);
     }
 
-    private void previousQuestion() {
-        mCurrentIndex = (mCurrentIndex - 1 + mQuestionBank.length) % mQuestionBank.length;
+    public void enableAnswerButton() {
+        mTrueButton.setEnabled(true);
+        mFalseButton.setEnabled(true);
+    }
+
+    private void nextQuestion() {
+        mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.length;
         updateQuestion();
     }
 
@@ -143,9 +142,19 @@ public class QuizActivity extends AppCompatActivity {
 
         if(userPressedtrue == answerIsTrue) {
             showToast(R.string.correct_toast);
+            correctAnswers++;
         } else {
             showToast(R.string.incorrect_toast);
         }
+
+        if (isLastQuestion()) {
+            String scoreString = "You scored: " + correctAnswers + "out of " + mQuestionBank.length;
+            Toast.makeText(this, scoreString , Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private boolean isLastQuestion() {
+        return (mQuestionBank.length - 1) == mCurrentIndex;
     }
 
     private void showToast(final int messageId) {
