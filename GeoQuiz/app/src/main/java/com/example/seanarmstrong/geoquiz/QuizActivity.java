@@ -17,12 +17,12 @@ public class QuizActivity extends AppCompatActivity {
     private static final String TAG = "QuizActivity";
     private static final String KEY_INDEX = "index";
     private static final int REQUEST_CODE_CHEAT_ACTIVITY = 0;
+    private static final String CHEATER_INDEX = "cheater";
 
     private Button mTrueButton;
     private Button mFalseButton;
     private Button mNextButton;
     private Button mCheatButton;
-    private boolean mIsCheater;
     private TextView mQuestionTextView;
 
     private Question[] mQuestionBank = new Question[] {
@@ -34,6 +34,8 @@ public class QuizActivity extends AppCompatActivity {
         new Question(R.string.question_asia, true)
     };
 
+    private boolean[] cheatArray = new boolean[mQuestionBank.length];
+
     private int mCurrentIndex = 0;
 
     @Override
@@ -44,6 +46,7 @@ public class QuizActivity extends AppCompatActivity {
 
         if (savedInstanceState != null) {
             mCurrentIndex = savedInstanceState.getInt(KEY_INDEX, 0);
+            cheatArray = savedInstanceState.getBooleanArray(CHEATER_INDEX);
         }
 
         mQuestionTextView = (TextView) findViewById(R.id.question_text_view);
@@ -76,7 +79,6 @@ public class QuizActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 nextQuestion();
-                mIsCheater = false;
             }
         });
 
@@ -98,6 +100,7 @@ public class QuizActivity extends AppCompatActivity {
         super.onSaveInstanceState(savedInstanceState);
         Log.i(TAG, "onSaveInstanceState");
         savedInstanceState.putInt(KEY_INDEX, mCurrentIndex);
+        savedInstanceState.putBooleanArray(CHEATER_INDEX, cheatArray);
     }
 
     @Override
@@ -110,7 +113,7 @@ public class QuizActivity extends AppCompatActivity {
             if (data == null) {
                 return;
             }
-            mIsCheater = CheatActivity.wasAnswerShown(data);
+            cheatArray[mCurrentIndex] = CheatActivity.wasAnswerShown(data);
         }
     }
 
@@ -157,7 +160,7 @@ public class QuizActivity extends AppCompatActivity {
         boolean answerIsTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
 
 
-        if (mIsCheater) {
+        if (cheatArray[mCurrentIndex]) {
             showToast(R.string.judgement_toast);
         } else {
             if (userPressedtrue == answerIsTrue) {
