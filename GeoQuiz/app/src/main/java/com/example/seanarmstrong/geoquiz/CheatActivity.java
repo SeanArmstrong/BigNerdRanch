@@ -17,16 +17,21 @@ public class CheatActivity extends AppCompatActivity {
 
     private static final String EXTRA_ANSWER_IS_TRUE = "com.example.seanarmstrong.geoquiz.answer_is_true";
     private static final String ANSWER_SHOWN = "com.example.seanarmstrong.geoquiz.answer_shown";
+    private static final String CHEATS_REMAINING = "com.example.seanarmstrong.geoquiz.cheats_remaining";
+
 
 
     private boolean mAnswerIsTrue;
+    private int mCheatsRemaining;
     private TextView mAnswerTextView;
     private TextView mAndroidVersion;
+    private TextView mCheatsRemainingView;
     private Button mShowAnswerButton;
 
-    public static Intent newIntent(Context packageContext, boolean answerIsTrue) {
+    public static Intent newIntent(Context packageContext, boolean answerIsTrue, int cheatsRemaining) {
         Intent intent = new Intent(packageContext, CheatActivity.class);
         intent.putExtra(EXTRA_ANSWER_IS_TRUE, answerIsTrue);
+        intent.putExtra(CHEATS_REMAINING, cheatsRemaining);
         return intent;
     }
 
@@ -40,8 +45,12 @@ public class CheatActivity extends AppCompatActivity {
         setContentView(R.layout.activity_cheat);
 
         mAnswerIsTrue = getIntent().getBooleanExtra(EXTRA_ANSWER_IS_TRUE, false);
+        mCheatsRemaining = getIntent().getIntExtra(CHEATS_REMAINING, 3);
 
         mAnswerTextView = (TextView) findViewById(R.id.answer_text_view);
+
+        mCheatsRemainingView = (TextView) findViewById(R.id.cheats_remaining);
+        mCheatsRemainingView.setText("Cheats Remaining: " + mCheatsRemaining);
 
         mShowAnswerButton = (Button) findViewById(R.id.show_answer_button);
         mShowAnswerButton.setOnClickListener(new View.OnClickListener() {
@@ -53,6 +62,9 @@ public class CheatActivity extends AppCompatActivity {
                     mAnswerTextView.setText(R.string.false_button);
                 }
                 setAnswerShownResult(true);
+                mCheatsRemaining--;
+                mCheatsRemainingView.setText("Cheats Remaining: " + mCheatsRemaining);
+
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     int cx = mShowAnswerButton.getWidth() / 2;
