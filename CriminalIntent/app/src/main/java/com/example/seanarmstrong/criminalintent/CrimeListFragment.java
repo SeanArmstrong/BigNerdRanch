@@ -51,13 +51,12 @@ public class CrimeListFragment extends Fragment {
         private TextView mTitleTextView;
         private TextView mDateTextView;
 
-        public CrimeHolder(LayoutInflater inflater, ViewGroup parent) {
-            super(inflater.inflate(R.layout.list_item_crime, parent, false));
-
-            mTitleTextView = (TextView) itemView.findViewById(R.id.crime_title);
-            mDateTextView = (TextView) itemView.findViewById(R.id.crime_date);
-
-            itemView.setOnClickListener(this);
+        // This could be split into a BasicCrimeHolder and a SeriousCrimeHolder which extend from
+        // Crime holder. They would know what layout they wanted to inflate rather than the adapter choosing
+        // But may be over the top for this exercise
+        public CrimeHolder(LayoutInflater inflater, ViewGroup parent, int layout) {
+            super(inflater.inflate(layout, parent, false));
+            setupCrimeView();
         }
 
         public void bind(Crime crime) {
@@ -70,11 +69,21 @@ public class CrimeListFragment extends Fragment {
         public void onClick(View v) {
             Toast.makeText(getActivity(), mCrime.getTitle() + " Clicked!", Toast.LENGTH_SHORT).show();
         }
+
+        private void setupCrimeView() {
+            mTitleTextView = (TextView) itemView.findViewById(R.id.crime_title);
+            mDateTextView = (TextView) itemView.findViewById(R.id.crime_date);
+
+            itemView.setOnClickListener(this);
+        }
     }
 
     private class CrimeAdapter extends RecyclerView.Adapter<CrimeHolder> {
 
         private List<Crime> mCrimes;
+
+        private final int BASIC_CRIME_VIEW_TYPE = 0;
+        private final int SERIOUS_CRIME_VIEW_TYPE = 1;
 
         public CrimeAdapter(List<Crime> crimes) {
             mCrimes = crimes;
@@ -83,18 +92,34 @@ public class CrimeListFragment extends Fragment {
         @Override
         public CrimeHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
-            return new CrimeHolder(layoutInflater, parent);
+
+            if (viewType == SERIOUS_CRIME_VIEW_TYPE) {
+                return new CrimeHolder(layoutInflater, parent, R.layout.list_item_serious_crime);
+            }
+
+            return new CrimeHolder(layoutInflater, parent, R.layout.list_item_crime);
         }
 
         @Override
         public void onBindViewHolder(CrimeHolder holder, int position) {
-            Crime crime = mCrimes.get(position);
-            holder.bind(crime);
+            holder.bind(getCrimeByPosition(position));
         }
 
         @Override
         public int getItemCount() {
             return mCrimes.size();
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            Crime crime = getCrimeByPosition(position);
+            // Change to Contants
+            int viewType = crime.isSerious() ? BASIC_CRIME_VIEW_TYPE : SERIOUS_CRIME_VIEW_TYPE;
+            return viewType;
+        }
+
+        private Crime getCrimeByPosition(int position) {
+            return mCrimes.get(position);
         }
     }
 }
