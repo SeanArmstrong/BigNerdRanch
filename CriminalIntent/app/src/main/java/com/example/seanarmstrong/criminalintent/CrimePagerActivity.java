@@ -10,6 +10,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.Button;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,6 +25,9 @@ public class CrimePagerActivity extends AppCompatActivity {
 
     private ViewPager mViewPager;
     private List<Crime> mCrimes;
+    private Button mFirstButton;
+    private Button mLastButton;
+
 
     public static Intent newIntent(Context packageContext, UUID crimeId) {
         Intent intent = new Intent(packageContext, CrimePagerActivity.class);
@@ -41,6 +45,7 @@ public class CrimePagerActivity extends AppCompatActivity {
         mCrimes = CrimeLab.getInstance(this).getCrimes();
         mViewPager = (ViewPager) findViewById(R.id.crime_view_pager);
         FragmentManager fragmentManager = getSupportFragmentManager();
+
         mViewPager.setAdapter(new FragmentStatePagerAdapter(fragmentManager) {
             @Override
             public Fragment getItem(int position) {
@@ -60,5 +65,23 @@ public class CrimePagerActivity extends AppCompatActivity {
                 break;
             }
         }
+
+        mFirstButton = (Button) findViewById(R.id.crime_first);
+        mFirstButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                mViewPager.setCurrentItem(0);
+            }
+        });
+
+        mLastButton = (Button) findViewById(R.id.crime_last);
+        mLastButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                mViewPager.setCurrentItem(mCrimes.size());
+            }
+        });
     }
 }
