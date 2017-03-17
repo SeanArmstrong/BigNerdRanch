@@ -29,12 +29,16 @@ public class CrimeFragment extends Fragment {
 
     private static final String ARG_CRIME_ID = "crime_id";
     private static final String DIALOG_DATA = "DialogDate";
+    private static final String DIALOG_TIME = "DialogTime";
+
     private static final int REQUEST_DATE = 0;
+    private static final int REQUEST_TIME = 1;
 
     private Crime mCrime;
 
     private EditText mTitleField;
     private Button mDateButton;
+    private Button mTimeButton;
     private CheckBox mSolvedCheckbox;
 
     public static CrimeFragment newInstance(UUID crimeId) {
@@ -77,7 +81,6 @@ public class CrimeFragment extends Fragment {
         });
 
         mDateButton = (Button) v.findViewById(R.id.crime_date);
-        mDateButton.setText(mCrime.getDate().toString());
         updateDate();
         mDateButton.setOnClickListener(new View.OnClickListener() {
 
@@ -86,6 +89,19 @@ public class CrimeFragment extends Fragment {
                 FragmentManager manager = getFragmentManager();
                 DatePickerFragment dialog = DatePickerFragment.newInstance(mCrime.getDate());
                 dialog.setTargetFragment(CrimeFragment.this, REQUEST_DATE);
+                dialog.show(manager, DIALOG_DATA);
+            }
+        });
+
+        mTimeButton = (Button) v.findViewById(R.id.crime_time);
+        updateTime();
+        mTimeButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                FragmentManager manager = getFragmentManager();
+                TimePickerFragment dialog = TimePickerFragment.newInstance(mCrime.getDate());
+                dialog.setTargetFragment(CrimeFragment.this, REQUEST_TIME);
                 dialog.show(manager, DIALOG_DATA);
             }
         });
@@ -110,13 +126,36 @@ public class CrimeFragment extends Fragment {
         }
 
         if (requestCode == REQUEST_DATE) {
-            Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
-            mCrime.setDate(date);
-            updateDate();
+            handleActivityDateResult(data);
+        } else if (requestCode == REQUEST_TIME) {
+            handleActivityTimeResult(data);
         }
     }
 
+    private void handleActivityTimeResult(Intent data) {
+        int hour = data.getIntExtra(TimePickerFragment.EXTRA_HOUR, 12);
+        int minute = data.getIntExtra(TimePickerFragment.EXTRA_MINUTE, 0);
+
+        mCrime.setTime(hour, minute);
+        updateDateAndTime();
+    }
+
+    private void handleActivityDateResult(Intent data) {
+        Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
+        mCrime.setDateMaintainTime(date);
+        updateDateAndTime();
+    }
+
+    private void updateDateAndTime() {
+        updateDate();
+        updateTime();
+    }
+
     private void updateDate() {
-        mDateButton.setText(mCrime.getDate().toString());
+        mDateButton.setText(mCrime.getFormattedDate());
+    }
+
+    private void updateTime() {
+        mTimeButton.setText(mCrime.getFormattedDateTime());
     }
 }
