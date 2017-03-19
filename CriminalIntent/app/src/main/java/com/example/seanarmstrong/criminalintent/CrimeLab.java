@@ -10,6 +10,7 @@ import java.util.UUID;
  * Created by sean.armstrong on 26/02/2017.
  */
 public class CrimeLab {
+
     private static CrimeLab sCrimeLab;
 
     private List<Crime> mCrimes;
@@ -19,16 +20,6 @@ public class CrimeLab {
             sCrimeLab = new CrimeLab(context);
         }
         return sCrimeLab;
-    }
-
-    private CrimeLab(Context context) {
-        mCrimes = new ArrayList<Crime>();
-        for (int i = 0; i < 100; i++) {
-            Crime crime = new Crime();
-            crime.setTitle("Crime #" + i);
-            crime.setSolved(i % 2 == 0);
-            mCrimes.add(crime);
-        }
     }
 
     public List<Crime> getCrimes() {
@@ -42,5 +33,17 @@ public class CrimeLab {
             }
         }
         return null;
+    }
+
+    public void addCrime(Crime crime) {
+        mCrimes.add(crime);
+    }
+
+    public int getNumberOfCrimes() {
+        return mCrimes.size();
+    }
+
+    private CrimeLab(Context context) {
+        mCrimes = new ArrayList<>();
     }
 }
