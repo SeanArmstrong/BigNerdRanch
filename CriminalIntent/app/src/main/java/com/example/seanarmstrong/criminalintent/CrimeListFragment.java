@@ -31,6 +31,7 @@ public class CrimeListFragment extends Fragment {
     private RecyclerView mCrimeRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private boolean mSubititleVisible;
+    private TextView mNoCrimesText;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -50,6 +51,11 @@ public class CrimeListFragment extends Fragment {
         }
 
         mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        if (numberOfCrimes() > 0) {
+            mNoCrimesText = (TextView) view.findViewById(R.id.crime_no_crimes);
+            mNoCrimesText.setVisibility(View.INVISIBLE);
+        }
 
         updateUI();
 
@@ -101,9 +107,9 @@ public class CrimeListFragment extends Fragment {
     }
 
     public void updateSubtitle() {
-        CrimeLab crimes = CrimeLab.getInstance(getActivity());
-        int crimeCount = crimes.getNumberOfCrimes();
-        String subtitle = getString(R.string.subtitle_format, crimeCount);
+        int crimeCount = numberOfCrimes();
+
+        String subtitle = getResources().getQuantityString(R.plurals.subtitle_plural, crimeCount, crimeCount);
 
         if (!mSubititleVisible) {
            subtitle = null;
@@ -125,6 +131,11 @@ public class CrimeListFragment extends Fragment {
         }
 
         updateSubtitle();
+    }
+
+    private int numberOfCrimes() {
+        CrimeLab crimes = CrimeLab.getInstance(getActivity());
+        return crimes.getNumberOfCrimes();
     }
 
     private class CrimeHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
